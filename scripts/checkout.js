@@ -107,6 +107,9 @@ const cartQuantity = calculateCartQuantity();
 document.querySelector('.js-return-to-home-link')
     .innerHTML = `${cartQuantity} items`;
 
+document.querySelector('.js-items-quantity')
+    .innerHTML = `${cartQuantity}`;
+
 document.querySelectorAll('.js-delete-link')
     .forEach((link) => {
         link.addEventListener('click', () => {
@@ -119,6 +122,7 @@ document.querySelectorAll('.js-delete-link')
             const cartQuantity = calculateCartQuantity();
             document.querySelector('.js-return-to-home-link')
                 .innerHTML = `${cartQuantity} items`;
+            updateAmounts();
         });
     });
 
@@ -156,8 +160,7 @@ document.querySelectorAll('.save-quantity-link')
                 .innerHTML = `${cartQuantity} items`;
             document.querySelector('.js-quantity-label')
                 .innerHTML = newQuantity;
-
-
+            updateAmounts();
         })
     });
 
@@ -184,8 +187,49 @@ document.querySelectorAll('.js-quantity-input')
                     .innerHTML = `${cartQuantity} items`;
                 document.querySelector('.js-quantity-label')
                     .innerHTML = newQuantity;
-
-
+                updateAmounts();
             }
         })
     })
+
+function calculateFirstTotal() {
+    let total = 0;
+    cart.forEach(cartItem => {
+        const product = products.find(product => product.id === cartItem.productId);
+        if (product) {
+            total += product.priceCents * cartItem.quantity;
+        }
+    });
+    return total;
+}
+
+function calculateTotalBeforeTax(firstTotal) {
+    return firstTotal + 499;
+}
+
+function calculateEstimatedTax(subtotalAmount) {
+    const taxRate = 0.10;
+    return subtotalAmount * taxRate;
+}
+
+function calculateOrderTotal(subtotalAmount, estimatedTax) {
+    return subtotalAmount + estimatedTax;
+}
+
+function updateAmounts() {
+    let firstTotal = calculateFirstTotal();
+    document.querySelector('.js-first-total')
+        .innerHTML = `$${formatCurrency(firstTotal)}`;
+    let subtotalAmount = calculateTotalBeforeTax(firstTotal);
+    document.querySelector('.js-subtotal-amount')
+        .innerHTML = `$${formatCurrency(subtotalAmount)}`;
+    let estimatedTax = calculateEstimatedTax(subtotalAmount);
+    document.querySelector('.js-tax-amount')
+        .innerHTML = `$${formatCurrency(estimatedTax)}`;
+    let orderTotal = calculateOrderTotal(subtotalAmount, estimatedTax);
+    document.querySelector('.js-order-total')
+        .innerHTML = `$${formatCurrency(orderTotal)}`;
+}
+
+updateAmounts();
+
